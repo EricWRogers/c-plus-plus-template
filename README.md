@@ -28,6 +28,7 @@ git clone --recursive git@github.com:EricWRogers/c-plus-plus-template.git
     -  CMake minimum version 3.18
     -  https://cmake.org/download/
     -  window x64 installer
+    -  make sure to select add to path in the installer
 
     -  download vscode
     -  open the project with vscode
