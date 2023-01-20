@@ -11,8 +11,6 @@ git clone --recursive git@github.com:EricWRogers/c-plus-plus-template.git
 
     -   CMake minimum version 3.18
 
-    -   Python version 3
-
     -   libgl1-mesa-dev
 
     -   librandr-dev
