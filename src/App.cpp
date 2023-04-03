@@ -29,6 +29,9 @@ void App::Run() {
 }
 
 void App::Load() {
+    // configure opengle global state
+    glEnable(GL_DEPTH_TEST);
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     // build and compile our shader program
     m_testingShader.Compile("assets/shaders/3.3.shader.vs"
@@ -58,7 +61,14 @@ void App::Load() {
 }
 
 void App::Loop() {
+    previousTime = high_resolution_clock::now();
+    
     while(m_appState == AppState::ON) {
+        currentTime = high_resolution_clock::now();
+        deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - previousTime).count() / 1000000000.0;
+        previousTime = currentTime;
+        Engine::Log(std::to_string(deltaTime));
+
         Update();
         Draw();
 
@@ -71,15 +81,15 @@ void App::Loop() {
 
 void App::Update(){}
 void App::Draw(){
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 transform = glm::mat4(1.0f);
 
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f));
+    view = m_camera.GetViewMatrix();
 
     glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(145.0f),
+    projection = glm::perspective(glm::radians(45.0f),
         (float)m_window.GetScreenWidth()/(float)m_window.GetScreenHeight(), 0.1f, 100.0f);
 
     m_testingShader.Use();
@@ -99,9 +109,7 @@ void App::Draw(){
         m_testingShader.SetInt("texture1", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_textureMeme.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/5); // Triangles
-        //glDrawArrays(GL_LINES, 0, vertices.size()/6); // Lines
-        //glDrawArrays(GL_LINE_LOOP, 0, vertices.size()/6); // Lines
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/5);
         glBindVertexArray(0);
     }
     m_testingShader.UnUse();
@@ -124,9 +132,15 @@ void App::InputUpdate(){
     const Uint8 *keyState = SDL_GetKeyboardState(NULL);
 
     if (keyState[SDL_SCANCODE_W]) {
-        Engine::Log("W Down");
+        m_camera.ProcessKeyboard(Engine::Camera_Movement::FORWARD, deltaTime);
     }
-    else {
-        Engine::Log("W Up");
+    if (keyState[SDL_SCANCODE_S]) {
+        m_camera.ProcessKeyboard(Engine::Camera_Movement::BACKWARD, deltaTime);
+    }
+    if (keyState[SDL_SCANCODE_A]) {
+        m_camera.ProcessKeyboard(Engine::Camera_Movement::LEFT, deltaTime);
+    }
+    if (keyState[SDL_SCANCODE_D]) {
+        m_camera.ProcessKeyboard(Engine::Camera_Movement::RIGHT, deltaTime);
     }
 }

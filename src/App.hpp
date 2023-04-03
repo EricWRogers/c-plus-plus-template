@@ -4,11 +4,19 @@
 #include "Engine/Window.hpp"
 #include "Engine/Shader.hpp"
 #include "Engine/IOManager.hpp"
+#include "Engine/Camera.hpp"
+#include <chrono>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#ifdef __linux__
+using namespace std::chrono::_V2;
+#elif _WIN32
+using namespace std::chrono;
+#else
+#endif
 
 enum AppState{
     ON,
@@ -27,9 +35,15 @@ private:
 
     AppState m_appState = AppState::OFF;
     Engine::Window m_window;
+    Engine::Camera m_camera = Engine::Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
     unsigned int m_vbo, m_vao;
     unsigned int m_vertexShader, m_shaderProgram;
+
+    high_resolution_clock::time_point currentTime;
+    high_resolution_clock::time_point previousTime;
+
+    double deltaTime;
 
     Engine::GLTexture m_textureMeme = {};
 
