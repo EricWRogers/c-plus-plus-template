@@ -187,13 +187,12 @@ namespace Engine
         {
             int maxLength = 0;
             glGetShaderiv(_id, GL_INFO_LOG_LENGTH, &maxLength);
-
             std::vector<char> errorLog(maxLength);
-            glGetShaderInfoLog(_id, maxLength, &maxLength, &errorLog[0]);
+            glGetShaderInfoLog(_id, maxLength, NULL, errorLog.data());
 
             glDeleteShader(_id);
 
-            FatalError("Shader " + _filePath + " failed to compile\nOpengl Error: " + std::string(errorLog[0], maxLength),10);
+            FatalError("Shader " + _filePath + " failed to compile\nOpengl Error: " + std::string(begin(errorLog), end(errorLog)),10);
             return;
         }
     }

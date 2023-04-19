@@ -46,7 +46,7 @@ namespace Engine
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 
         // VSYNC 0 off 1 on
-        SDL_GL_SetSwapInterval(0);
+        SDL_GL_SetSwapInterval(1);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -62,5 +62,14 @@ namespace Engine
     void Window::SwapBuffer()
     {
         SDL_GL_SwapWindow(m_sdlWindow);
+    }
+
+    void Window::MouseLock(bool _isLocked)
+    {
+        m_mouseLock = _isLocked;
+
+        SDL_CaptureMouse((SDL_bool)m_mouseLock);
+        
+        SDL_SetRelativeMouseMode((SDL_bool)m_mouseLock);
     }
 } // end of Engine namespace

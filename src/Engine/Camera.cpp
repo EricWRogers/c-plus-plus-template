@@ -37,6 +37,10 @@ namespace Engine
             position -= right * velocity;
         if (direction == RIGHT)
             position += right * velocity;
+        if (direction == UP)
+            position += up * velocity;
+        if (direction == DOWN)
+            position -= up * velocity;
     }
 
     void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)

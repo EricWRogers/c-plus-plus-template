@@ -19,6 +19,7 @@ namespace Engine
         SDL_Window *m_sdlWindow = nullptr;
         int m_screenWidth = 0;
         int m_screenHeight = 0;
+        bool m_mouseLock = false;
     public:
         Window();
         ~Window();
@@ -31,5 +32,8 @@ namespace Engine
 
         int GetScreenWidth() { return m_screenWidth; }
         int GetScreenHeight() { return m_screenHeight; }
+
+        void MouseLock(bool _isLocked);
+        bool GetMouseLock() { return m_mouseLock; }
     };
 } // end of Engine namespace
