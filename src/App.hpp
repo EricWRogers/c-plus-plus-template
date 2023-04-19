@@ -58,9 +58,6 @@ private:
     Engine::Window m_window;
     Engine::Camera m_camera = Engine::Camera(glm::vec3(0.0f, 3.0f, 9.0f));
 
-    unsigned int m_vbo, m_vao;
-    unsigned int m_vertexShader, m_shaderProgram;
-
     high_resolution_clock::time_point currentTime;
     high_resolution_clock::time_point previousTime;
 
@@ -79,6 +76,8 @@ private:
     Engine::Shader m_testingShader;
     Engine::Shader m_lightCubeShader;
     Engine::Shader m_lightMapShader;
+
+    Engine::ModelAsset cubeModel;
 
     std::vector<glm::vec3> m_cubeGrass = {
         glm::vec3(0.0f, -1.0f, 0.0f),

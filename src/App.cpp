@@ -47,26 +47,7 @@ void App::Load() {
         ,"assets/shaders/light_map.fs");
     m_lightMapShader.Link();
 
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-
-    glBindVertexArray(m_vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-    // position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // normal
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    // uv
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    cubeModel.Load("assets/models/cube.obj");
 
     m_textureMeme = Engine::LoadImageToGLTexture("assets/textures/ForcePush.png", GL_RGBA, GL_RGBA);
     m_textureGrass = Engine::LoadImageToGLTexture("assets/textures/grass_block_top.png", GL_RGBA, GL_RGBA);
@@ -98,6 +79,18 @@ void App::Loop() {
     }
 }
 
+void DrawCube(glm::mat4 _transform,Engine::Shader *_shader, Engine::ModelAsset *_model, Engine::GLTexture *_texture)
+{
+    _shader->SetMat4("transform", _transform);
+
+    glBindVertexArray(_model->GetVAO());
+    _shader->SetInt("texture1", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _texture->id);
+    glDrawArrays(GL_TRIANGLES, 0, _model->GetSize());
+    glBindVertexArray(0);
+}
+
 void App::Update(){}
 void App::Draw(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -121,8 +114,8 @@ void App::Draw(){
     m_lightCubeShader.SetMat4("projection", projection);
     m_lightCubeShader.SetMat4("model", transform);
 
-    glBindVertexArray(m_vao);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
+    glBindVertexArray(cubeModel.GetVAO());
+    glDrawArrays(GL_TRIANGLES, 0, cubeModel.GetSize());
     glBindVertexArray(0);
 
     m_lightCubeShader.UnUse();
@@ -155,84 +148,42 @@ void App::Draw(){
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_textureGrass.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGrass);
     }
     for(glm::vec3 pos : m_cubePlank)
     {
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_texturePlank.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_texturePlank);
     }
     for(glm::vec3 pos : m_cubeLog)
     {
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_textureLog.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureLog);
     }
     for(glm::vec3 pos : m_cubeStone)
     {
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_textureStone.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureStone);
     }
     for(glm::vec3 pos : m_cubeBrick)
     {
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_textureBrick.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureBrick);
     }
     for(glm::vec3 pos : m_cubeGlass)
     {
         transform = glm::mat4(1.0f);
         transform = glm::translate(transform, pos);
 
-        m_testingShader.SetMat4("transform", transform);
-
-        glBindVertexArray(m_vao);
-        m_testingShader.SetInt("texture1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_textureGlass.id);
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
-        glBindVertexArray(0);
+        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGlass);
     }
     
     m_testingShader.UnUse();
@@ -260,12 +211,12 @@ void App::Draw(){
 
     m_lightMapShader.SetMat4("transform", transform);
 
-    glBindVertexArray(m_vao);
+    glBindVertexArray(cubeModel.GetVAO());
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_diffuseMap.id);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_specularMap.id);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size()/8);
+    glDrawArrays(GL_TRIANGLES, 0, cubeModel.GetSize());
     glBindVertexArray(0);
     
     m_lightMapShader.UnUse();

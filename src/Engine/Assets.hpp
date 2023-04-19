@@ -22,8 +22,8 @@ namespace Engine
     class Asset
     {
     public:
-        Asset();
-        ~Asset();
+        Asset() {}
+        ~Asset() {}
 
         Asset(const Asset&) = delete;
         Asset& operator= (const Asset&) = delete;
