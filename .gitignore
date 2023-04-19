@@ -11,4 +11,7 @@ CTestTestfile.cmake
 _deps
 
 build/
+zips/
 .vscode/
+
+.zip
