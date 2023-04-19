@@ -20,7 +20,7 @@ namespace Engine
         }
 
         m_size = m_vertices.size();
-        Log("s " + std::to_string(m_vertices.size()));
+        Log(path + " size: " + std::to_string(m_vertices.size()));
 
         glGenVertexArrays(1, &m_vao);
         glGenBuffers(1, &m_vbo);

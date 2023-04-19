@@ -31,24 +31,23 @@ void App::Run() {
 void App::Load() {
     // configure opengle global state
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_LESS);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     // build and compile our shader program
-    m_testingShader.Compile("assets/shaders/3.3.shader.vs"
-        ,"assets/shaders/3.3.shader.fs");
-    // add attributes here
+    m_testingShader.Compile("assets/shaders/3.3.shader.vs" ,"assets/shaders/3.3.shader.fs");
     m_testingShader.Link();
 
-    m_lightCubeShader.Compile("assets/shaders/light_cube.vs"
-        ,"assets/shaders/light_cube.fs");
+    m_lightCubeShader.Compile("assets/shaders/light_cube.vs" ,"assets/shaders/light_cube.fs");
     m_lightCubeShader.Link();
 
-    m_lightMapShader.Compile("assets/shaders/light_map.vs"
-        ,"assets/shaders/light_map.fs");
+    m_lightMapShader.Compile("assets/shaders/light_map.vs" ,"assets/shaders/light_map.fs");
     m_lightMapShader.Link();
 
+    // load models
     cubeModel.Load("assets/models/cube.obj");
 
+    // load textures
     m_textureMeme = Engine::LoadImageToGLTexture("assets/textures/ForcePush.png", GL_RGBA, GL_RGBA);
     m_textureGrass = Engine::LoadImageToGLTexture("assets/textures/grass_block_top.png", GL_RGBA, GL_RGBA);
     m_texturePlank = Engine::LoadImageToGLTexture("assets/textures/oak_planks.png", GL_RGBA, GL_RGBA);
@@ -187,39 +186,6 @@ void App::Draw(){
     }
     
     m_testingShader.UnUse();
-
-    m_lightMapShader.Use();
-
-    m_lightMapShader.SetMat4("view", view);
-    m_lightMapShader.SetMat4("projection", projection);
-    m_lightMapShader.SetVec3("viewPos", m_camera.position);
-
-    lightColor = glm::vec3(1.0f);
-
-    m_lightMapShader.SetVec3("pointLight.position", lightCubePosition);
-    m_lightMapShader.SetVec3("pointLight.ambient", lightColor/0.9f);
-    m_lightMapShader.SetVec3("pointLight.diffuse", lightColor);
-    m_lightMapShader.SetVec3("pointLight.specular", glm::vec3(1.0f));
-
-    // material properties
-    m_lightMapShader.SetInt("material.diffuse", 0);
-    m_lightMapShader.SetInt("material.specular", 1);
-    m_lightMapShader.SetFloat("material.shininess", 0.9f*128.0f);
-
-    transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, -5.0f));
-
-    m_lightMapShader.SetMat4("transform", transform);
-
-    glBindVertexArray(cubeModel.GetVAO());
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_diffuseMap.id);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_specularMap.id);
-    glDrawArrays(GL_TRIANGLES, 0, cubeModel.GetSize());
-    glBindVertexArray(0);
-    
-    m_lightMapShader.UnUse();
 }
 void App::LateUpdate(){}
 void App::InputUpdate(){
