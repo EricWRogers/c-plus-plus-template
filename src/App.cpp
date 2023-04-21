@@ -35,7 +35,7 @@ void App::Load() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // build and compile our shader program
-    m_testingShader.Compile("assets/shaders/3.3.shader.vs" ,"assets/shaders/3.3.shader.fs");
+    m_testingShader.Compile("assets/shaders/final.vs" ,"assets/shaders/final.fs");
     m_testingShader.Link();
 
     m_lightCubeShader.Compile("assets/shaders/light_cube.vs" ,"assets/shaders/light_cube.fs");
@@ -90,9 +90,14 @@ void DrawCube(glm::mat4 _transform,Engine::Shader *_shader, Engine::ModelAsset *
     glBindVertexArray(0);
 }
 
-void App::Update(){}
-void App::Draw(){
+void App::UpdateLights() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // light properties
+    glm::vec3 lightColor = glm::vec3(1.0f);
+    lightColor.r = static_cast<float>(sin(SDL_GetTicks() * 0.002));
+    lightColor.g = static_cast<float>(sin(SDL_GetTicks() * 0.0007));
+    lightColor.b = static_cast<float>(sin(SDL_GetTicks() * 0.0013));
 
     glm::mat4 transform = glm::mat4(1.0f);
 
@@ -105,7 +110,9 @@ void App::Draw(){
     
     m_lightCubeShader.Use();
 
-    glm::vec3 lightCubePosition = glm::vec3(0.0f,3.0f,-5.0f);
+    m_lightCubeShader.SetVec4("color", glm::vec4(lightColor.r,lightColor.g,lightColor.b,1.0f));
+
+    glm::vec3 lightCubePosition = glm::vec3(6.0f,3.0f,6.0f);
     transform = glm::translate(transform, lightCubePosition);
     transform = glm::scale(transform, glm::vec3(0.2f));
 
@@ -125,66 +132,61 @@ void App::Draw(){
     m_testingShader.SetMat4("projection", projection);
     m_testingShader.SetVec3("viewPos", m_camera.position);
 
-    // light properties
-    glm::vec3 lightColor = glm::vec3(1.0f);
-    lightColor.r = static_cast<float>(sin(SDL_GetTicks() * 0.002));
-    lightColor.g = static_cast<float>(sin(SDL_GetTicks() * 0.0007));
-    lightColor.b = static_cast<float>(sin(SDL_GetTicks() * 0.0013));
+    m_testingShader.SetVec4("color", glm::vec4(1.0f));
     
-    m_testingShader.SetVec3("directionalLight.direction", glm::vec3(1.0f,-1.0f, 1.0f));
-    m_testingShader.SetVec3("directionalLight.ambient", lightColor/0.9f);
-    m_testingShader.SetVec3("directionalLight.diffuse", lightColor);
-    m_testingShader.SetVec3("directionalLight.specular", glm::vec3(1.0f));
+    m_testingShader.SetInt("numDirLights", 1);
+    m_testingShader.SetVec3("dirLight.direction", glm::vec3(1.0f,-1.0f, 1.0f));
+    m_testingShader.SetVec3("dirLight.ambient", glm::vec3(0.8f)/0.9f);
+    m_testingShader.SetVec3("dirLight.diffuse", glm::vec3(0.8f));
+    m_testingShader.SetVec3("dirLight.specular", glm::vec3(1.0f));
 
+    m_testingShader.SetInt("numPointLights", 1);
+    m_testingShader.SetVec3("pointLights[0].position", lightCubePosition);
+    m_testingShader.SetVec3("pointLights[0].ambient", lightColor/2.0f);
+    m_testingShader.SetVec3("pointLights[0].diffuse", lightColor/3.0f);
+    m_testingShader.SetVec3("pointLights[0].specular", glm::vec3(1.0f));
+    m_testingShader.SetFloat("pointLights[0].constant", 1.0f);
+    m_testingShader.SetFloat("pointLights[0].linear", 0.09f);
+    m_testingShader.SetFloat("pointLights[0].quadratic", 0.032f);
+
+    m_testingShader.SetInt("numSpotLights", 0);
+}
+
+void App::Update(){}
+void App::Draw(){
+    UpdateLights();
     // material properties
     m_testingShader.SetVec3("material.ambient", 0.2f, 0.2f, 0.2f);
     m_testingShader.SetVec3("material.diffuse", glm::vec3(0.6f));
     m_testingShader.SetVec3("material.specular", glm::vec3(0.2f));
     m_testingShader.SetFloat("material.shininess", 0.9f*128.0f);
 
-    for(glm::vec3 pos : m_cubeGrass)
-    {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
+    glm::mat4 transform;
 
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGrass);
-    }
-    for(glm::vec3 pos : m_cubePlank)
+    for (int y = 0; y < m_YLayer; y++)
     {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
+        for (int x = 0; x < m_XLayer; x++)
+        {
+            for (int z = 0; z < m_ZLayer; z++)
+            {
+                transform = glm::mat4(1.0f);
+                transform = glm::translate(transform, glm::vec3(x,y,z));
 
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_texturePlank);
+                switch (m_layers[y][z][x])
+                {
+                case GRASS:
+                    DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGrass);
+                    break;
+                case PLANK:
+                    DrawCube(transform, &m_testingShader, &cubeModel, &m_texturePlank);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
-    for(glm::vec3 pos : m_cubeLog)
-    {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
-
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureLog);
-    }
-    for(glm::vec3 pos : m_cubeStone)
-    {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
-
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureStone);
-    }
-    for(glm::vec3 pos : m_cubeBrick)
-    {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
-
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureBrick);
-    }
-    for(glm::vec3 pos : m_cubeGlass)
-    {
-        transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, pos);
-
-        DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGlass);
-    }
-    
+       
     m_testingShader.UnUse();
 }
 void App::LateUpdate(){}
