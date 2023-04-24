@@ -65,6 +65,9 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fp, vec3 viewDir);
 
 void main()
 {
+    if (texture(texture1, texCoord).a == 0.0)
+        discard;
+    
     // properties
     vec3 norm = normalize(oNormal);
     vec3 viewDir = normalize(viewPos - fragPos);

@@ -33,6 +33,9 @@ void App::Load() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LESS);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    // Enable blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // build and compile our shader program
     m_testingShader.Compile("assets/shaders/final.vs" ,"assets/shaders/final.fs");
@@ -46,10 +49,13 @@ void App::Load() {
 
     // load models
     cubeModel.Load("assets/models/cube.obj");
+    plantModel.Load("assets/models/plants.obj");
 
     // load textures
+    m_textureGrass = Engine::LoadImageToGLTexture("assets/textures/grass.png", GL_RGBA, GL_RGBA);
+    m_textureFlower = Engine::LoadImageToGLTexture("assets/textures/blue_orchid.png", GL_RGBA, GL_RGBA);
     m_textureMeme = Engine::LoadImageToGLTexture("assets/textures/ForcePush.png", GL_RGBA, GL_RGBA);
-    m_textureGrass = Engine::LoadImageToGLTexture("assets/textures/grass_block_top.png", GL_RGBA, GL_RGBA);
+    m_textureGrassBlock = Engine::LoadImageToGLTexture("assets/textures/grass_block_top.png", GL_RGBA, GL_RGBA);
     m_texturePlank = Engine::LoadImageToGLTexture("assets/textures/oak_planks.png", GL_RGBA, GL_RGBA);
     m_textureLog = Engine::LoadImageToGLTexture("assets/textures/oak_log.png", GL_RGBA, GL_RGBA);
     m_textureStone = Engine::LoadImageToGLTexture("assets/textures/cobblestone.png", GL_RGBA, GL_RGBA);
@@ -66,7 +72,7 @@ void App::Loop() {
         currentTime = high_resolution_clock::now();
         deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - previousTime).count() / 1000000000.0;
         previousTime = currentTime;
-        //Engine::Log(std::to_string(deltaTime));
+        Engine::Log(std::to_string(deltaTime));
 
         Update();
         Draw();
@@ -162,7 +168,7 @@ void App::Draw(){
     m_testingShader.SetFloat("material.shininess", 0.9f*128.0f);
 
     glm::mat4 transform;
-
+    
     for (int y = 0; y < m_YLayer; y++)
     {
         for (int x = 0; x < m_XLayer; x++)
@@ -175,10 +181,13 @@ void App::Draw(){
                 switch (m_layers[y][z][x])
                 {
                 case GRASS:
-                    DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGrass);
+                    DrawCube(transform, &m_testingShader, &cubeModel, &m_textureGrassBlock);
                     break;
                 case PLANK:
                     DrawCube(transform, &m_testingShader, &cubeModel, &m_texturePlank);
+                    break;
+                case FLOWER:
+                    DrawCube(transform, &m_testingShader, &plantModel, &m_textureFlower);
                     break;
                 default:
                     break;
@@ -186,7 +195,7 @@ void App::Draw(){
             }
         }
     }
-       
+
     m_testingShader.UnUse();
 }
 void App::LateUpdate(){}
